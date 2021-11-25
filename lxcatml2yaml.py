@@ -10,15 +10,18 @@ except ImportError:
 
 BlockMap = yaml.comments.CommentedMap
 
+units_mapping = {
+    "m2": "m",
+}
+
 # A class of yaml data for collision of a target species
 class Process:
-    def __init__(self, kind, equation, threshold, data_x, data_y):
+    def __init__(self, kind, equation, threshold, data):
         self.attribs = BlockMap({})
         self.attribs["kind"] = kind
         self.attribs["equation"] = equation
         self.attribs["threshold"] = threshold
-        self.attribs["electron-energy-data"] = data_x
-        self.attribs["cross-section-data"] = data_y
+        self.attribs["data"] = data
 
     @classmethod
     def to_yaml(cls, representer, data):
@@ -48,6 +51,12 @@ def FlowList(*args, **kwargs):
     lst = yaml.comments.CommentedSeq(*args, **kwargs)
     lst.fa.set_flow_style()
     return lst
+
+def FlowMap(*args, **kwargs):
+    """A YAML mapping that flows onto one line."""
+    m = yaml.comments.CommentedMap(*args, **kwargs)
+    m.fa.set_flow_style()
+    return m
 
 def main():
     # Define yaml emitter
@@ -109,29 +118,24 @@ def main():
             equation = f"{target} + e => {products}"
 
             # Data
-            data_x = str(get_children(process, "data_x")[0].text)
-            data_x = data_x.split(" ")
-            data_x = FlowList(map(float, data_x))
-
-            data_y = str(get_children(process, "data_y")[0].text)
-            data_y = data_y.split(" ")
-            data_y = FlowList(map(float, data_y))
+            data_x = get_children(process, "data_x")[0]
+            data_y = get_children(process, "data_y")[0]
+            unit_x = data_x.attrib["units"]
+            unit_y = units_mapping[data_y.attrib["units"]]
+            data = {"units": FlowMap({"length": unit_y, "electron-energy": unit_x})}
+            data["electron-energy"] = FlowList(map(float, data_x.text.split(" ")))
+            data["cross-section"] = FlowList(map(float, data_y.text.split(" ")))
 
             # Save process
             process_list.append(Process(kind=kind,
                                         equation=equation,
                                         threshold=threshold,
-                                        data_x=data_x,
-                                        data_y=data_y))
+                                        data=data))
 
     # Put process list in collision node
     collision_node = {"electron-collisions": process_list}
 
-    # Add unit
-    units_node = {"units": FlowList([{"length": "m"}, {"electron-energy": "eV"}])}
-
     with Path("mycs.yaml").open("w") as output_file:
-        emitter.dump(units_node, output_file)
         emitter.dump(collision_node, output_file)
 
 if __name__ == "__main__":
