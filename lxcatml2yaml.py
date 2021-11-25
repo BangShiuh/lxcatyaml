@@ -67,10 +67,17 @@ def main():
             target = group.attrib["id"]
 
             # Collision type
-            kind=process.attrib["collisionType"]
             if process.attrib["collisionType"] == "inelastic":
-                kind = process.attrib["inelasticType"]
-
+                if process.attrib["inelasticType"] == "excitation_ele":
+                    kind = "electronic-excitation"
+                elif process.attrib["inelasticType"] == "excitation_vib":
+                    kind = "vibrational-excitation"
+                elif process.attrib["inelasticType"] == "excitation_rot":
+                    kind = "rotational-excitation"
+                else:
+                    kind = process.attrib["inelasticType"]
+            else:
+                kind=process.attrib["collisionType"]
             # Threshold
             threshold = 0.0
             parameters_node = get_children(process, "parameters")[0]
