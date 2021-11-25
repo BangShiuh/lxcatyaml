@@ -60,13 +60,12 @@ def main():
     # Get groups node
     groups_node = get_children(database, "groups")[0]
 
-    collision_list = []
-    for group in groups_node:
-        # Target name
-        target = group.attrib["id"]
-        process_list = [{"target": group.attrib["id"]}]
-        
+    process_list = []
+    for group in groups_node:   
         for process in get_children(group, "processes")[0]:
+            # Target
+            target = group.attrib["id"]
+
             # Collision type
             kind=process.attrib["collisionType"]
             if process.attrib["collisionType"] == "inelastic":
@@ -118,18 +117,15 @@ def main():
                                         data_x=data_x,
                                         data_y=data_y))
 
-        # Put process list in collision node
-        collision_node = {"electron-collisions": process_list}
-
-        # Save collision
-        collision_list.append(collision_node)
+    # Put process list in collision node
+    collision_node = {"electron-collisions": process_list}
 
     # Add unit
     units_node = {"units": FlowList([{"length": "m"}, {"electron-energy": "eV"}])}
 
     with Path("mycs.yaml").open("w") as output_file:
         emitter.dump(units_node, output_file)
-        emitter.dump(collision_list, output_file)
+        emitter.dump(collision_node, output_file)
 
 if __name__ == "__main__":
     main()
