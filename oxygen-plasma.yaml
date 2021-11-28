@@ -1,0 +1,49 @@
+units: {length: cm, quantity: molec, activation-energy: K}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, E]
+  species:
+  - species: [O2]
+  - gri30_ion.yaml/species: [E]
+  reactions: none
+  kinetics: gas
+  transport: Ion
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+species:
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0 K, 1000.0 K, 3500.0 K]
+    data:
+    - [3.78245636, -2.99673416e-03, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.28253784, 1.48308754e-03, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14,
+      -1088.45772, 5.45323129]
+    note: TPIS89
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 107.4
+    diameter: 3.458
+    polarizability: 1.6
+    rotational-relaxation: 3.8
+
+collisions:
+- equation: O2 + e => e + O2
+  kind: elastic
+  threshold: 0.0
+  data:
+    # units: {length: m, energy: eV}
+    energy: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 15.0,
+      20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 200.0, 300.0, 400.0,
+      500.0, 600.0, 700.0, 800.0, 900.0, 1000.0]
+    cross-section: [5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20, 7.52e-20, 7.86e-20,
+      8.21e-20, 8.49e-20, 8.8e-20, 9e-20, 8.89e-20, 8.6e-20, 8.09e-20, 7.3e-20, 6.59e-20,
+      6.08e-20, 5.63e-20, 5.29e-20, 5.01e-20, 4.78e-20, 3.15e-20, 2.4e-20, 2e-20,
+      1.72e-20, 1.53e-20, 1.37e-20, 1.27e-20, 1.18e-20, 1.1e-20]

@@ -18,8 +18,8 @@ units_mapping = {
 class Process:
     def __init__(self, kind, equation, threshold, data):
         self.attribs = BlockMap({})
-        self.attribs["kind"] = kind
         self.attribs["equation"] = equation
+        self.attribs["kind"] = kind
         self.attribs["threshold"] = threshold
         self.attribs["data"] = data
 
@@ -122,8 +122,8 @@ def main():
             data_y = get_children(process, "data_y")[0]
             unit_x = data_x.attrib["units"]
             unit_y = units_mapping[data_y.attrib["units"]]
-            data = {"units": FlowMap({"length": unit_y, "electron-energy": unit_x})}
-            data["electron-energy"] = FlowList(map(float, data_x.text.split(" ")))
+            data = {"units": FlowMap({"length": unit_y, "energy": unit_x})}
+            data["energy"] = FlowList(map(float, data_x.text.split(" ")))
             data["cross-section"] = FlowList(map(float, data_y.text.split(" ")))
 
             # Save process
@@ -133,7 +133,7 @@ def main():
                                         data=data))
 
     # Put process list in collision node
-    collision_node = {"electron-collisions": process_list}
+    collision_node = {"collisions": process_list}
 
     with Path("mycs.yaml").open("w") as output_file:
         emitter.dump(collision_node, output_file)
